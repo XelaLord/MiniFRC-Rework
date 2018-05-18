@@ -14,3 +14,5 @@ axis,<Name>,k,<Forward Key>,<Backward Key>		// Activates a keyboard controlled a
 button,<Name>,j,<Joystick Number>,<Button Number>	// Activates a joystick controlled button, notice the j tag
 button,<Name>,k,<Key>					// Activates a keyboard controlled button, notice the k tag
 hat,<Name>,<Joystick Number>,<Hat Number>		// Activates a hat, hats are always joystick controlled and don't need a j tag
+
+

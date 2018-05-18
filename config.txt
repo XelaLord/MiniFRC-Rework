@@ -1,2 +1,4 @@
-COMtest
-joysticktest
+COM4
+
+axis,Arm,k,w,s
+

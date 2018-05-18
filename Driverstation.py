@@ -152,7 +152,7 @@ class axis():       #Class used to store info about and axis
     def __init__(self,name,inputtype,data):
         self.Name = name
         self.Type = inputtype #type is a boolean representing the input source 0/False is button, 1/True is Joystick
-        self.DeadZone = 0.03 
+        self.DeadZone = 0 
 
         if self.Type:   #If joystick
             self.cache = 0
@@ -185,10 +185,13 @@ class axis():       #Class used to store info about and axis
             
     def getValue(self):
         if self.Type:
-            return self.deaden(self.cache)
+            return float(self.deaden(self.cache))
             #return round(Joysticks[self.joystickNum].Object.get_axis(self.joystickAxis),axisPresicion)
         else:
-            return self.cache[0]-self.cache[1]
+            return float(self.cache[0]-self.cache[1])
+
+    def getPack(self):
+        return self.getValue()
 
 class button():
     def __init__(self,name,inputtype,data):
@@ -212,7 +215,10 @@ class button():
         return self.cache
             
     def getValue(self):
-        return self.cache
+        return float(self.cache)
+
+    def getPack(self):
+        return self.getValue()
 
 class hat():
     def __init__(self,name,data):
@@ -232,6 +238,9 @@ class hat():
     def getValue(self):
         return self.cache
         #return Joysticks[self.joystickNum].Object.get_hat(self.joystickHat)
+
+    def getPack(self):
+        return "%s;%s" % (float(self.cache[0]),float(self.cache[1]))
 
 def rendertext(scale,text,x,y,color=BLACK):     #General purpose method for rendering text        
     font = pygame.font.SysFont("courier",scale)
@@ -340,8 +349,8 @@ for line in configRaw:
 console.log("[NOTICE] Config file read successfully")
 
 
-console.log("[INFO] Attempting connection with robot")
 if not test_mode:
+    console.log("[INFO] Attempting connection with robot")
     s = connect(com,baudrate)
     if s != False:
         console.log("[INFO] Connected to robot!")
@@ -417,7 +426,7 @@ while (not Exit) and (not flag):
     try:
         package = "z"
         for i in Controls:
-            package += str(i.getValue()) + ";"
+            package += str(i.getPack()) + ";"
     except Exception as e: 
         console.log("[ERROR] Error raised while creating bluetooth package")
         console.log("[ERROR] Logged as " + str(e))
