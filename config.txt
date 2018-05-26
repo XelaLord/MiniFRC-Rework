@@ -1,4 +1,12 @@
-COM4
+COMtest
 
-axis,Arm,k,w,s
-
+button,Button1,j,0,0
+button,Button2,j,0,1
+button,Button3,j,0,2
+button,Button4,j,0,3
+button,Button5,j,0,4
+button,Button6,j,0,5
+button,Button7,j,0,6
+button,Button8,j,0,7
+button,Button9,j,0,8
+button,Button10,j,0,9

@@ -176,7 +176,7 @@ class axis():       #Class used to store info about and axis
         else:
             return 0
 
-    def UpdateCache(self,value,key=''):
+    def UpdateCache(self,value=0,key=''):
         if self.Type:
             self.cache = Joysticks[self.joystickNum].Object.get_axis(self.joystickAxis)
         else:
@@ -350,7 +350,7 @@ console.log("[NOTICE] Config file read successfully")
 
 
 if not test_mode:
-    console.log("[INFO] Attempting connection with robot")
+    console.log("[INFO] Connecting to robot")
     s = connect(com,baudrate)
     if s != False:
         console.log("[INFO] Connected to robot!")
@@ -359,14 +359,16 @@ if not test_mode:
 
           
 
-readout = Readout()
-#console.clear()
-console.running = True
-Exit = False
-Clock = pygame.time.Clock()
+
 if not flag:
+    Exit = False
+    Clock = pygame.time.Clock()
+    readout = Readout()
+    axisUpdateList = [[] for i in range(3)]
     console.log("[INFO] Driver station is now ACTIVE")
     console.log("[INFO] Press escape to exit driver station")
+    console.running = True
+    
 while (not Exit) and (not flag):
     Clock.tick(60)
     
@@ -377,7 +379,8 @@ while (not Exit) and (not flag):
         for event in events:
             if event.type == pygame.JOYAXISMOTION:
                 if ((event.joy,event.axis,0) in Inputs):
-                    Inputs[(event.joy,event.axis,0)].UpdateCache(round(event.value,axisPresicion))
+                    Inputs[(event.joy,event.axis,0)].UpdateCache()
+                    axisUpdateList[0].append(Inputs[(event.joy,event.axis,0)])
             elif event.type == pygame.JOYBUTTONUP:
                 if ((event.joy,event.button,1) in Inputs):
                     Inputs[(event.joy,event.button,1)].UpdateCache(0)
@@ -421,6 +424,17 @@ while (not Exit) and (not flag):
             console.log("[ERROR] Error raised while handling events")
             console.log("[ERROR] Logged as: %s" % (e))
             flag = True
+
+    try:
+        for i in range(len(axisUpdateList)):
+            for j in range(len(axisUpdateList[i])):
+                axisUpdateList[i][j].UpdateCache()
+        axisUpdateList.pop(0)
+        axisUpdateList.append([])
+    except Exception as e:
+        console.log("[ERROR] Error raised while updating axis values")
+        console.log("[ERROR] Logged as " + str(e))
+        flag = True
        
     #Creating package
     try:

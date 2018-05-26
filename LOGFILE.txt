@@ -1,0 +1,9 @@
+MiniFRC Driver Station 2018 V4.0
+Booting...
+[INFO] 1 joystick(s) loaded: ['Logitech Extreme 3D']
+[INFO] Found config.txt, reading...
+[INFO] Driver Station in Test Mode, not connecting to robot
+[NOTICE] Config file read successfully
+[INFO] Driver station is now ACTIVE
+[INFO] Press escape to exit driver station
+[NOTICE] Escape key pressed, shutting down
