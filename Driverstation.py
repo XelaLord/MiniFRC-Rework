@@ -20,9 +20,9 @@ GREEN = (0,255,0)
 BLUE = (0,0,255)
 
 pygame.init()
-resolution = (1280,720) #Resolution of the screen opened    If using fullscreen use the resolution of your monitor
+resolution = (800,600) #Resolution of the screen opened    If using fullscreen use the resolution of your monitor
 baudrate = 9600
-screen = pygame.display.set_mode(resolution,pygame.HWSURFACE|pygame.DOUBLEBUF|pygame.FULLSCREEN) #pygame.RESIZEABLE for windowed mode, pygame.FULLSCREEN for fullscreen, HWSURFACE and DOUBLEBUF are only used if in fullscreen mode
+screen = pygame.display.set_mode(resolution,pygame.RESIZABLE)#pygame.HWSURFACE|pygame.DOUBLEBUF|pygame.FULLSCREEN) #pygame.RESIZEABLE for windowed mode, pygame.FULLSCREEN for fullscreen, HWSURFACE and DOUBLEBUF are only used if in fullscreen mode
 pygame.display.set_caption("MiniFRC Driver Station 2018 V%s" % (str(version)))
 Text = pygame.font.SysFont("courier",20)
 screen.fill(WHITE)
@@ -31,7 +31,7 @@ pygame.display.update()
 class Console(): #Console class is the left most section of the screen that displays any messages logged
     def __init__(self):
         self.stack = []             #List of all messages logge
-        self.width = 500            #The width of the console window in pixels. The UI is dynamic and so changing this shouldn't break anything
+        self.width = 250            #The width of the console window in pixels. The UI is dynamic and so changing this shouldn't break anything
         self.running = False        #If False the window will be updated after every message logged, if True it will only be updated when the render() method is called
         self.NeedUpdate = True      #Variable to track if there has been an update made that needs rendering, improves performance to only render the console when it's updated
         self.scroll = 0
@@ -54,10 +54,14 @@ class Console(): #Console class is the left most section of the screen that disp
                     color = BLACK
 
             #If the message is too long to display on one line this will break it into multiple
-            #Needs to be made better but it works
-            self.stack.append([str(text)[:70],color])
-            for i in range(1,int(len(text)/70+1)):
-                self.stack.append([str(text)[i*70:(i+1)*70],color])
+            temptext = text
+            while (len(temptext) > 0):
+                i = len(temptext)
+                font = pygame.font.SysFont("courier",12)
+                while (font.size(temptext[:i])[0] > self.width):
+                    i += -1
+                self.stack.append([temptext[:i],color])
+                temptext = temptext[i:]
 
             #If not running this re-renders the console
             if not self.running:
@@ -101,8 +105,8 @@ class Console(): #Console class is the left most section of the screen that disp
 
 class Readout():        #Class that handles all of the instrument readouts
     def __init__(self):
-        self.AxisWidth = 500        #Width of the Axes portion
-        self.ButtonWidth = 150      #Width of the Buttons portion
+        self.AxisWidth = 400        #Width of the Axes portion
+        self.ButtonWidth = 0      #Width of the Buttons portion
         self.HatWidth = 75          #Width of the Hats portion
         self.AxisRange = [console.width + 10, console.width + self.AxisWidth + 10]              #Stores the left and right bounds of the Axes portion
         self.ButtonRange = [self.AxisRange[1] + 10,self.AxisRange[1] + self.ButtonWidth + 10]   #Stores the left and right bounds of the buttions portion
@@ -152,7 +156,7 @@ class axis():       #Class used to store info about and axis
     def __init__(self,name,inputtype,data):
         self.Name = name
         self.Type = inputtype #type is a boolean representing the input source 0/False is button, 1/True is Joystick
-        self.DeadZone = 0 
+        self.DeadZone = 0.03 
 
         if self.Type:   #If joystick
             self.cache = 0
@@ -249,22 +253,21 @@ def rendertext(scale,text,x,y,color=BLACK):     #General purpose method for rend
 
 def connect(default,baudrate):
     try:
-        s = serial.Serial(str(default),9600,writeTimeout = 1)
+        s = serial.Serial(str(default),9600,writeTimeout = 5)
         return s
     except:
         console.log("[WARNING] Couldn't connect to robot with specified COM port in config file")
             
-    for i in range(50):
+    for i in range(10):
         com = "COM" + str(i)
         try:
-            s = serial.Serial(com,9600,writeTimeout = 1)
+            s = serial.Serial(com,9600,writeTimeout = 5)
             return s
         except:
             console.log("[WARNING] Couldn't connect to robot with port " + com)
     console.log()
     console.log("[WARNING] Couldn't connect to robot on ANY ports")
     flag = True
-    return False
 
 
  
@@ -352,6 +355,7 @@ console.log("[NOTICE] Config file read successfully")
 if not test_mode:
     console.log("[INFO] Connecting to robot")
     s = connect(com,baudrate)
+    #h = connect("COM3",9600)
     if s != False:
         console.log("[INFO] Connected to robot!")
     else:
@@ -364,13 +368,15 @@ if not flag:
     Exit = False
     Clock = pygame.time.Clock()
     readout = Readout()
-    axisUpdateList = [[] for i in range(3)]
+    axisUpdateList = [[] for i in range(5)]
     console.log("[INFO] Driver station is now ACTIVE")
     console.log("[INFO] Press escape to exit driver station")
     console.running = True
     
 while (not Exit) and (not flag):
-    Clock.tick(60)
+    Clock.tick(30)
+
+    #console.log(h.read())
     
     try:
         #Event handling
