@@ -20,7 +20,7 @@ GREEN = (0,255,0)
 BLUE = (0,0,255)
 
 pygame.init()
-resolution = (800,600) #Resolution of the screen opened    If using fullscreen use the resolution of your monitor
+resolution = (1250,400) #Resolution of the screen opened    If using fullscreen use the resolution of your monitor
 baudrate = 9600
 screen = pygame.display.set_mode(resolution,pygame.RESIZABLE)#pygame.HWSURFACE|pygame.DOUBLEBUF|pygame.FULLSCREEN) #pygame.RESIZEABLE for windowed mode, pygame.FULLSCREEN for fullscreen, HWSURFACE and DOUBLEBUF are only used if in fullscreen mode
 pygame.display.set_caption("MiniFRC Driver Station 2018 V%s" % (str(version)))
@@ -31,7 +31,7 @@ pygame.display.update()
 class Console(): #Console class is the left most section of the screen that displays any messages logged
     def __init__(self):
         self.stack = []             #List of all messages logge
-        self.width = 250            #The width of the console window in pixels. The UI is dynamic and so changing this shouldn't break anything
+        self.width = 350            #The width of the console window in pixels. The UI is dynamic and so changing this shouldn't break anything
         self.running = False        #If False the window will be updated after every message logged, if True it will only be updated when the render() method is called
         self.NeedUpdate = True      #Variable to track if there has been an update made that needs rendering, improves performance to only render the console when it's updated
         self.scroll = 0
@@ -105,8 +105,8 @@ class Console(): #Console class is the left most section of the screen that disp
 
 class Readout():        #Class that handles all of the instrument readouts
     def __init__(self):
-        self.AxisWidth = 400        #Width of the Axes portion
-        self.ButtonWidth = 0      #Width of the Buttons portion
+        self.AxisWidth = 500        #Width of the Axes portion
+        self.ButtonWidth = 175      #Width of the Buttons portion
         self.HatWidth = 75          #Width of the Hats portion
         self.AxisRange = [console.width + 10, console.width + self.AxisWidth + 10]              #Stores the left and right bounds of the Axes portion
         self.ButtonRange = [self.AxisRange[1] + 10,self.AxisRange[1] + self.ButtonWidth + 10]   #Stores the left and right bounds of the buttions portion
@@ -156,7 +156,7 @@ class axis():       #Class used to store info about and axis
     def __init__(self,name,inputtype,data):
         self.Name = name
         self.Type = inputtype #type is a boolean representing the input source 0/False is button, 1/True is Joystick
-        self.DeadZone = 0.03 
+        self.DeadZone = 0.06 
 
         if self.Type:   #If joystick
             self.cache = 0
@@ -219,7 +219,7 @@ class button():
         return self.cache
             
     def getValue(self):
-        return float(self.cache)
+        return self.cache
 
     def getPack(self):
         return self.getValue()
@@ -244,7 +244,7 @@ class hat():
         #return Joysticks[self.joystickNum].Object.get_hat(self.joystickHat)
 
     def getPack(self):
-        return "%s;%s" % (float(self.cache[0]),float(self.cache[1]))
+        return "%s;%s" % (self.cache[0],self.cache[1])
 
 def rendertext(scale,text,x,y,color=BLACK):     #General purpose method for rendering text        
     font = pygame.font.SysFont("courier",scale)
@@ -361,8 +361,6 @@ if not test_mode:
     else:
         flag = True
 
-          
-
 
 if not flag:
     Exit = False
@@ -374,7 +372,7 @@ if not flag:
     console.running = True
     
 while (not Exit) and (not flag):
-    Clock.tick(30)
+    Clock.tick(20)
 
     #console.log(h.read())
     
