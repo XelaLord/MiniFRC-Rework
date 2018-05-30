@@ -20,7 +20,7 @@ GREEN = (0,255,0)
 BLUE = (0,0,255)
 
 pygame.init()
-resolution = (1250,400) #Resolution of the screen opened    If using fullscreen use the resolution of your monitor
+resolution = (1200,400) #Resolution of the screen opened    If using fullscreen use the resolution of your monitor
 baudrate = 9600
 screen = pygame.display.set_mode(resolution,pygame.RESIZABLE)#pygame.HWSURFACE|pygame.DOUBLEBUF|pygame.FULLSCREEN) #pygame.RESIZEABLE for windowed mode, pygame.FULLSCREEN for fullscreen, HWSURFACE and DOUBLEBUF are only used if in fullscreen mode
 pygame.display.set_caption("MiniFRC Driver Station 2018 V%s" % (str(version)))
@@ -30,8 +30,8 @@ pygame.display.update()
 
 class Console(): #Console class is the left most section of the screen that displays any messages logged
     def __init__(self):
-        self.stack = []             #List of all messages logge
-        self.width = 350            #The width of the console window in pixels. The UI is dynamic and so changing this shouldn't break anything
+        self.stack = []             #List of all messages logged
+        self.width = 450            #The width of the console window in pixels. The UI is dynamic and so changing this shouldn't break anything
         self.running = False        #If False the window will be updated after every message logged, if True it will only be updated when the render() method is called
         self.NeedUpdate = True      #Variable to track if there has been an update made that needs rendering, improves performance to only render the console when it's updated
         self.scroll = 0
@@ -85,7 +85,7 @@ class Console(): #Console class is the left most section of the screen that disp
                 rendertext(12,self.stack[i][0],1,i*14 + 20 + self.scroll,self.stack[i][1])
 
             #Drawing the border
-            #pygame.draw.rect(screen,WHITE,(0,0,self.width,20))     #Not sure if this is strictly necessary, if the FPS counter startings displaying weird uncomment this
+            pygame.draw.rect(screen,WHITE,(0,0,self.width,20))
             pygame.draw.rect(screen,BLACK,(0,20,self.width,resolution[1]-70), 1)
 
             pygame.display.update((0,20,self.width,resolution[1]-70))   #Updates only the portion of the screen with the console
@@ -105,9 +105,9 @@ class Console(): #Console class is the left most section of the screen that disp
 
 class Readout():        #Class that handles all of the instrument readouts
     def __init__(self):
-        self.AxisWidth = 500        #Width of the Axes portion
-        self.ButtonWidth = 175      #Width of the Buttons portion
-        self.HatWidth = 75          #Width of the Hats portion
+        self.AxisWidth = 500        #Width of the Axes portion. The UI is dynamic and so changing this shouldn't break anything
+        self.ButtonWidth = 175      #Width of the Buttons portion. The UI is dynamic and so changing this shouldn't break anything 
+        self.HatWidth = 75          #Width of the Hats portion.  The UI is dynamic and so changing this shouldn't break anything
         self.AxisRange = [console.width + 10, console.width + self.AxisWidth + 10]              #Stores the left and right bounds of the Axes portion
         self.ButtonRange = [self.AxisRange[1] + 10,self.AxisRange[1] + self.ButtonWidth + 10]   #Stores the left and right bounds of the buttions portion
         self.HatRange = [self.ButtonRange[1] + 10,self.ButtonRange[1] + self.HatWidth + 10]     #Stores the left and right bounds of the hats portion
@@ -117,12 +117,12 @@ class Readout():        #Class that handles all of the instrument readouts
 
     def render(self):   #Method that renders the readout
         for i in range(len(Axes)):      #Axes
-            vertPos = i * 75 + 10
+            vertPos = i * 50 + 10
             rendertext(15,Axes[i].Name,self.AxisRange[0], vertPos)
             pygame.draw.line(screen, BLACK,(self.AxisRange[0],vertPos+20),(self.AxisRange[1],vertPos+20))
             pygame.draw.line(screen, BLACK,(self.AxisRange[0],vertPos+25),(self.AxisRange[0],vertPos+15))
-            pygame.draw.line(screen, BLACK,(self.AxisRange[1],vertPos+25),(self.AxisRange[1],vertPos+15))
-            pygame.draw.rect(screen, RED, (self.AxisRange[2],vertPos+17,Axes[i].getValue()*self.AxisWidth/2,7))
+            pygame.draw.line(screen, BLACK,(self.AxisRange[1],vertPos+25),(self.AxisRange[1],vertPos+15))       
+            pygame.draw.rect(screen, RED, (self.AxisRange[2],vertPos+17,Axes[i].getValue()*self.AxisWidth/2,7)) #The actual red bar showing current value
 
         for i in range(len(Buttons)):   #Buttons
             vertPos = i * 25 + 10
@@ -173,6 +173,7 @@ class axis():       #Class used to store info about and axis
         #Add this object to the inputs list and to the Axes list
         Axes.append(self)
         Controls.append(self)
+        self.UpdateCache()
         
     def deaden(self,value):
         if abs(value) > self.DeadZone:
@@ -373,8 +374,6 @@ if not flag:
     
 while (not Exit) and (not flag):
     Clock.tick(20)
-
-    #console.log(h.read())
     
     try:
         #Event handling
@@ -424,6 +423,7 @@ while (not Exit) and (not flag):
                     console.NeedUpdate = True
                     if console.scroll < -console.ScrollLimit:
                         console.scroll = -console.ScrollLimit
+                
     except Exception as e:
             console.log("[ERROR] Error raised while handling events")
             console.log("[ERROR] Logged as: %s" % (e))
@@ -465,7 +465,7 @@ while (not Exit) and (not flag):
         #console.NeedUpdate = True
         console.render()
         readout.render()
-        rendertext(15,"FPS:" + str(1000/Clock.get_time()),0,0)
+        rendertext(15,"FPS:" + str(round(1000/Clock.get_time())),0,0)
         pygame.display.update([(console.width,0,resolution[0],resolution[1]),(0,0,console.width,20),(0,resolution[1]-50,console.width,50)])
     except Exception as e:
         console.log("[ERROR] Error raised while drawing the screen")
