@@ -254,7 +254,7 @@ def rendertext(scale,text,x,y,color=BLACK):     #General purpose method for rend
 
 def connect(default,baudrate):
     try:
-        s = serial.Serial(str(default),9600,writeTimeout = 5)
+        s = serial.Serial(str(default),9600)
         return s
     except:
         console.log("[WARNING] Couldn't connect to robot with specified COM port in config file")
@@ -262,7 +262,7 @@ def connect(default,baudrate):
     for i in range(10):
         com = "COM" + str(i)
         try:
-            s = serial.Serial(com,9600,writeTimeout = 5)
+            s = serial.Serial(com,9600)
             return s
         except:
             console.log("[WARNING] Couldn't connect to robot with port " + com)
@@ -367,7 +367,7 @@ if not flag:
     Exit = False
     Clock = pygame.time.Clock()
     readout = Readout()
-    axisUpdateList = [[] for i in range(5)]
+    axisUpdateList = [[] for i in range(10)]
     console.log("[INFO] Driver station is now ACTIVE")
     console.log("[INFO] Press escape to exit driver station")
     console.running = True
@@ -442,9 +442,10 @@ while (not Exit) and (not flag):
        
     #Creating package
     try:
-        package = "z"
+        package = "a"
         for i in Controls:
             package += str(i.getPack()) + ";"
+        package += "z"
     except Exception as e: 
         console.log("[ERROR] Error raised while creating bluetooth package")
         console.log("[ERROR] Logged as " + str(e))

@@ -1,11 +1,48 @@
 MiniFRC Driver Station 2018 V4.0
 Booting...
-[INFO] 0 joystick(s) loaded: []
+[INFO] 2 joystick(s) loaded: ['Logi
+tech Extreme 3D', 'Controller (Afte
+rglow Gamepad for Xbox 360)']
 [INFO] Found config.txt, reading...
-[INFO] Driver Station in Test Mode, not connecting to robot
-[INFO] Joystick test mode enabled, all joystick input devices wi
-ll be initialised
-[NOTICE] Config file read successfully
+[NOTICE] Config file read successfu
+lly
+[INFO] Connecting to robot
+[WARNING] Couldn't connect to robot
+ with specified COM port in config 
+file
+[WARNING] Couldn't connect to robot
+ with port COM0
+[WARNING] Couldn't connect to robot
+ with port COM1
+[WARNING] Couldn't connect to robot
+ with port COM2
+[WARNING] Couldn't connect to robot
+ with port COM3
+[WARNING] Couldn't connect to robot
+ with port COM4
+[WARNING] Couldn't connect to robot
+ with port COM5
+[WARNING] Couldn't connect to robot
+ with port COM6
+[WARNING] Couldn't connect to robot
+ with port COM7
+[WARNING] Couldn't connect to robot
+ with port COM8
+[WARNING] Couldn't connect to robot
+ with port COM9
+[WARNING] Couldn't connect to robot
+ on ANY ports
+[INFO] Connected to robot!
 [INFO] Driver station is now ACTIVE
-[INFO] Press escape to exit driver station
-[NOTICE] Escape key pressed, shutting down
+[INFO] Press escape to exit driver 
+station
+[ERROR] Error raised while sending 
+bluetooth package
+[ERROR] Logged as: 'NoneType' objec
+t has no attribute 'write'
+[WARNING] Normal operation has ende
+d, check error messages above
+[WARNING] Press the escape key to e
+xit
+[NOTICE] Escape key pressed, shutti
+ng down
