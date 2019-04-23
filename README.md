@@ -2,11 +2,8 @@
 
 Things you can type into the config file (exclude "<>"):
 COM<#> 		// Defines the COM port number the program will try to connect to the robot with
-
 COMtest		// The program will not attempt to connect with the robot
-joysticktest	// The program
-
- will automaticaly find all joystick inputs and activate them
+joysticktest	// The program ill automaticaly find all joystick inputs and activate them
 BAUD<#>		// Changes the Baud rate from the default of 9600
 
 axis,<Name>,j,<Joystick Number>,<Axis Number>		// Activates an joystick controlled axis, notice the j tag
