@@ -20,7 +20,7 @@ BLUE = (0,0,255)
 
 #Setup pygame and the driver station window
 pygame.init()
-resolution = (1600,400) # Resolution of the screen opened    If using fullscreen use the resolution of your monitor
+resolution = (1100,500) # Resolution of the screen opened    If using fullscreen use the resolution of your monitor
 baudrate = 9600
 screen = pygame.display.set_mode(resolution,pygame.RESIZABLE)# pygame.HWSURFACE|pygame.DOUBLEBUF|pygame.FULLSCREEN) # pygame.RESIZEABLE for windowed mode, pygame.FULLSCREEN for fullscreen, HWSURFACE and DOUBLEBUF are only used if in fullscreen mode
 pygame.display.set_caption("MiniFRC Driver Station 2018 V%s" % (str(version)))
@@ -110,7 +110,7 @@ class Console(): # Console class is the left most section of the screen that dis
 
 class Readout():        # Class that handles all of the instrument readouts
     def __init__(self):
-        self.AxisWidth = 500        # Width of the Axes portion. The UI is dynamic and so changing this shouldn't break anything
+        self.AxisWidth = 300        # Width of the Axes portion. The UI is dynamic and so changing this shouldn't break anything
         self.AxisRange = [console.width + 10, console.width + self.AxisWidth + 10]              # Stores the left and right bounds of the Axes portion
         self.AxisRange.append((self.AxisRange[0]+self.AxisRange[1])/2)              # Adds the midpoint between left and right bound to the list
         
@@ -150,8 +150,12 @@ class Input():
         self.cache = 0
 
         inputs.append(self)
-        if self.type == 'j':
-            controls[('j'+typ, self.j, self.i)] = self
+        if self.source == 'j':
+            self.j = int(self.j)
+            self.i = int(self.i)
+            controls[('j'+self.type, self.j, self.i)] = self
+            print('j'+self.type, self.j, self.i)
+            
         else:
             controls[self.j] = self
             if self.i != None:
@@ -166,7 +170,7 @@ class Input():
         if self.type in ['a', 'b']:
             return round(self.GetValue(), 2)
         elif self.type == 'h':
-            return ';'.join(self.GetValue())
+            return '%s;%s' % tuple(self.cache)
 
     def UpdateCache(self, value=None):
         if value == None:
@@ -202,11 +206,9 @@ class Input():
             rendertext(15,self.name, readout.ButtonRange[0]+5, vertPos+5)
             
         elif self.type == 'h':
-            hatValue = Hats[i].getValue()
-            width = self.HatWidth/3
-            pygame.draw.rect(screen,BLACK, (self.HatRange[0],vertPos,self.HatWidth,self.HatWidth),1)
-            pygame.draw.rect(screen,RED, (self.HatRange[0]+(hatValue[0]+1)*width,vertPos + (1-hatValue[1])*width,width,width))
-            vertPos += self.HatWidth
+            width = readout.HatWidth/3
+            pygame.draw.rect(screen,BLACK, (readout.HatRange[0] ,vertPos, readout.HatWidth, readout.HatWidth),1)
+            pygame.draw.rect(screen,RED, (readout.HatRange[0]+(self.cache[0]+1)*width, vertPos + (1-self.cache[1])*width, width, width))
     
 def InitJoysticks():
     # Initialise Joysticks
@@ -229,7 +231,7 @@ def ReadConfig():
         console.log("[WARNING] Error logged as: %s"%(e))
         if testMode == False:
             flag = True
-    console.log("[NOTICE] Config file read successfully")
+    #console.log("[NOTICE] Config file read successfully")
     
 def InitConfig():
     global joystickTestMode, testMode, com
@@ -253,12 +255,12 @@ def InitConfig():
                 console.log("\t[NOTICE] Joystick test mode enabled, all joystick input devices will be initialised")
 
                 for j in range(pygame.joystick.get_count()):
-                    for i in range(joysticks[i].Object.get_numaxes()):
-                        inputs[('ja',j,i)] = Input('ja',j,i)
-                    for i in range(Joysticks[i].Object.get_numbuttons()):
-                        inputs[('jb',j,i)] = Input('jb',j,i)
-                    for i in range(Joysticks[i].Object.get_numhats()):
-                        inputs[('jh',j,i)] = Input('jh',j,i)
+                    for i in range(joysticks[j].get_numaxes()):
+                        Input('Joystick%s Axis%s' % (j,i), 'j','a',j,i)
+                    for i in range(joysticks[j].get_numbuttons()):
+                        Input('Joystick%s Button%s' % (j,i), 'j','b',j,i)
+                    for i in range(joysticks[j].get_numhats()):
+                        Input('Joystick%s Hat%s' % (j,i), 'j','h',j,i)
 
             # BAUD line
             elif line.find("BAUD")!=-1:
@@ -290,7 +292,8 @@ def InitConnection():
     if not testMode:
         console.log("\t[INFO] Connecting to robot")
         s = Connect(com,baudrate)
-        console.log(s)
+        s.writeTimeout = 5
+        #console.log(s)
     else:
         console.log("\t[INFO] Driver Station in Test Mode, not connecting to robot")    
 
@@ -304,7 +307,7 @@ def Connect(default, baudrate):
         console.log("\t[WARNING] Couldn't connect to robot with specified COM port in config file")
 
     #If the provided COM port didn't work, just try a bunch of them.
-    ports = ['COM'+ str(i) for i in range(50)]
+    ports = ['COM'+ str(i) for i in range(20)]
     for port in ports:
         try:
             s = serial.Serial(port,baudrate)
@@ -373,7 +376,7 @@ def rendertext(scale,text,x,y,color=BLACK):     # General purpose method for ren
 console = Console()
 console.log("MiniFRC Driver Station 2018 V%s" % (str(version)))
 console.log("Booting...")
-console.log("This is a very long string for my wrapping system adsfasd a asdf asdf asd asd fas asd asd asd f")
+#console.log("This is a very long string for my wrapping system adsfasd a asdf asdf asd asd fas asd asd asd f")
 
 #Setup some variables we have to create at the beginning
 flag = False
@@ -388,6 +391,8 @@ ReadConfig()
 InitConfig()
 InitConnection()
 
+print(controls)
+
 if not flag:
     Exit = False
     Clock = pygame.time.Clock()
@@ -398,7 +403,7 @@ if not flag:
     console.running = True
     
 while (not Exit) and (not flag):
-    Clock.tick(60)
+    Clock.tick(20)
 
     # Event handling
     try:
